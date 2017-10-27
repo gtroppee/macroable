@@ -1,0 +1,9 @@
+.rspec
+/log
+/tmp
+**.orig
+
+## Environment normalisation:
+/.bundle
+/vendor/bundle
+.DS_Store

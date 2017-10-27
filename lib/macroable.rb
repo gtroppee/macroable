@@ -1,0 +1,6 @@
+require 'active_support/all'
+require 'macroable/module'
+require 'macroable/proxy'
+require 'macroable/registry'
+require 'macroable/collection'
+require 'macroable/item'
