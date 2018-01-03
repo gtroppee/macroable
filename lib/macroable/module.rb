@@ -2,36 +2,36 @@ module Macroable
   extend ActiveSupport::Concern
 
   included do
-    @registry = Registry.new
+    @node = Node.new
 
     class << self
-      attr_accessor :registry
+      attr_accessor :node
     end
 
-    def self.add_macro(*entries)
-      entries.each do |entry|
-        define_singleton_method(entry.to_s.singularize) do |*args, &block|
-          register(registry, entry, args, block)
+    def self.add_macro(*names)
+      names.each do |name|
+        define_singleton_method(name.to_s.singularize) do |*args, &block|
+          add_node(name, args, block)
         end
 
-        define_method(entry.to_s.singularize) do |*args, &block|
-          self.class.register(registry, entry, args, block)
+        define_method(name.to_s.singularize) do |*args, &block|
+          self.class.add_node(name, args, block)
         end
 
-        define_singleton_method(entry) do |*args, &block|
-          registry.find(entry) || []
+        define_singleton_method(name) do |*args, &block|
+          node.direct_children(name) || []
         end
 
-        define_method(entry) do |*args, &block|
-          self.class.registry.find(entry) || []
+        define_method(name) do |*args, &block|
+          self.class.node.direct_children(name) || []
         end
       end
     end
 
     private
 
-    def self.register(registry, key, args, block)
-      Proxy.new(registry: registry, key: key, args: args, block: block).save
+    def self.add_node(name, args, block)
+      Proxy.new(parent_node: @node, name: name, args: args, block: block).node
     end
   end
 end

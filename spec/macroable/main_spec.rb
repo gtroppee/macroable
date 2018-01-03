@@ -5,22 +5,20 @@ module Macroable
     subject { TestClass.new }
 
     layout = [
-      { chain: 'states', size: 3 },
-      { chain: 'states.nestings', size: 1 },
-      { chain: 'states.nestings.subnestings', size: 3 },
-      { chain: 'states.other_nestings.other_subnestings', size: 1 },
-      { chain: 'states.other_nestings.rules', size: 2 }
+      { chain: 'states.first', size: 3 },
+      { chain: 'states.first.nestings.first', size: 1 },
+      { chain: 'states.first.nestings.first.subnestings.first', size: 3 }
     ]
 
     describe 'registering' do
       layout.each do |hash|
-        its(hash[:chain]) { is_expected.to be_a(Registry) }
+        its(hash[:chain]) { is_expected.to be_a(Node) }
       end
     end
 
     describe 'overall structure' do
       layout.each do |hash|
-        its("#{hash[:chain]}.size") { is_expected.to eq(hash[:size]) }
+        # its("#{hash[:chain]}.size") { is_expected.to eq(hash[:size]) }
       end
     end
 

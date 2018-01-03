@@ -1,45 +1,17 @@
 module Macroable
-  class Proxy
-    attr_accessor :registry, :key, :args, :block
+  class Proxy < Base
+    attr_accessor :parent_node, :children_node, :block
 
-    def initialize(params)
-      params.each do |k, v|
-        public_send("#{k}=", v)
-      end
-    end
-
-    def save
-      if child.present?
-        child.items += [item]
-      else
-        self.registry = registry << new_registry
-      end
+    def node
+      self.children_node = Node.new(name: name, args: args, parent: parent_node)
       instance_eval(&block) if block.present?
+      parent_node.children << children_node
     end
 
-    def child
-      @child ||= registry.find(key_sym)
-    end
-
-    def new_registry
-      @new_registry ||= Registry.new(name: key_sym, items: [item])
-    end
-
-    def item
-      Item.new(args)
-    end
-
-    def key_sym
-      key.to_s.pluralize.to_sym
-    end
+    private
 
     def method_missing(name, *args, &block)
-      self.class.new(
-        registry: registry, 
-        key:      name, 
-        args:     args, 
-        block:    block
-      ).save
+      Proxy.new(parent_node: children_node, name: name, args: args, block: block).node
     end
   end
 end
