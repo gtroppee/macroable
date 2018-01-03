@@ -1,7 +1,5 @@
 module Macroable
   class Node < Base
-    attr_accessor :parent, :children
-
     def initialize(params = {})
       super
       self.children = []
@@ -16,16 +14,30 @@ module Macroable
       children + children.flat_map(&:all_children)
     end
 
+    def <<(name, args, block)
+      Proxy.new(parent: self, name: name, args: args, block: block).node
+    end
+
     private
 
     def method_missing(method_name)
-      args[method_name] if args.is_a?(Hash) && args&.key?(method_name)
-      return super if parent.all_children.none? { |c| c.name == method_name.to_s.singularize.to_sym }
-      direct_children(method_name.to_s.singularize.to_sym)
+      instance_eval(&delegation_proc)
     end
 
     def respond_to_missing?(method_name)
-      args.is_a?(Hash) && args&.key?(method_name) || super
+      instance_eval(&delegation_proc) || super
+    end
+
+    def delegation_proc
+      proc {
+        args[method_name] if args.is_a?(Hash) && args&.key?(method_name)
+        return super if parent.all_children.none? { |c| c.name == singular(method_name) }
+        direct_children(singular(method_name))
+      }
+    end
+
+    def singular(symbol)
+      symbol.to_s.singularize.to_sym
     end
   end
 end
