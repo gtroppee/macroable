@@ -1,6 +1,6 @@
 module Macroable
   class Base
-    attr_accessor :name, :args, :parent, :children
+    attr_accessor :namae, :args, :parent, :children
 
     def initialize(params = {})
       params.each do |k, v|

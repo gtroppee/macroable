@@ -6,7 +6,7 @@ module Macroable
     end
 
     def direct_children(name)
-      children.select { |c| c.name == name }
+      children.select { |c| c.namae == name }
     end
 
     def all_children
@@ -15,25 +15,23 @@ module Macroable
     end
 
     def <<(name, args, block)
-      Proxy.new(parent: self, name: name, args: args, block: block).node
+      Proxy.new(parent: self, namae: name, args: args, block: block).node
     end
 
     private
 
     def method_missing(method_name)
-      instance_eval(&delegation_proc)
+      delegation(method_name)
     end
 
     def respond_to_missing?(method_name)
-      instance_eval(&delegation_proc) || super
+      delegation(method_name) || super
     end
 
-    def delegation_proc
-      proc {
-        args[method_name] if args.is_a?(Hash) && args&.key?(method_name)
-        return super if parent.all_children.none? { |c| c.name == singular(method_name) }
-        direct_children(singular(method_name))
-      }
+    def delegation(method_name)
+      return args.first[method_name] if args.first.is_a?(Hash) && args.first&.key?(method_name)
+      return super if parent.all_children.none? { |c| c.namae == singular(method_name) }
+      direct_children(singular(method_name))
     end
 
     def singular(symbol)

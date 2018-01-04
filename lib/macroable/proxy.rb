@@ -3,7 +3,7 @@ module Macroable
     attr_accessor :block
 
     def node
-      self.children = Node.new(name: name, args: args, parent: parent)
+      self.children = Node.new(namae: namae, args: args, parent: parent)
       instance_eval(&block) if block.present?
       parent.children << children
     end
